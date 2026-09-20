@@ -1,0 +1,21 @@
+---
+import Base from "../layouts/Base.astro";
+---
+
+<Base title="andashi — not found" description="That page does not exist.">
+  <main class="wrap missing">
+    <img src="/mark.svg" alt="" width="64" height="64" />
+    <h1>Nothing here</h1>
+    <p class="lede">
+      That page does not exist. There is only one page so far, and it is
+      <a href="/">the front one</a>.
+    </p>
+  </main>
+</Base>
+
+<style>
+  .missing {
+    min-height: 70svh; display: flex; flex-direction: column;
+    justify-content: center; align-items: flex-start; gap: 1rem;
+  }
+</style>

@@ -1,0 +1,36 @@
+# andashi
+
+> A GrapheneOS phone declared in code: six profiles that work like network
+> zones, a search-first launcher configured by one file per zone, applied over
+> adb and verified by reading the device back.
+
+andashi is a GrapheneOS distribution, not an Android ROM of its own. The zones
+are Android users; what each one is, which apps live in it, what they may
+reach and how it looks are declared in files and applied from a computer over
+adb. No root, no privileged app, nothing agentic running on the phone.
+
+## The model
+
+- [Six zones](https://andashi.org/#zones): Home (trusted LAN, Tailscale, no Play services), Work (managed profile inside Home, RethinkDNS with lockdown), Cloud (DMZ), Gadgets (IoT VLAN, lockdown), Ops (management, stopped), Lab (guest, wiped often), Anon (Orbot, lockdown mandatory, password only)
+- One VPN per Android profile is a platform limit, so the assignment is enforced by Android rather than by discipline
+- Android runs three profiles at once: two zones stay stopped, two run on demand, and a stopped profile has its keys evicted
+
+## Declared in
+
+- `config/profiles.json` — what a zone is: VPN, lockdown, runtime, unlock, whether Play services exist in it
+- `config/apps.json` — which app lives in which zones, where its binary comes from, whether it may have INTERNET
+- `config/settings.json`, `config/theming.json`, `config/features.json`
+- `config/launcher/*.json` — generated per zone, pushed into the launcher, read back
+
+## Limits, stated on the page
+
+- It is not anonymity. Anon is a zone, not a cloak.
+- Needs a GrapheneOS-supported Pixel, a computer with adb, and an unlocked bootloader.
+- It builds on a wiped phone, it does not wipe one: the device-wide wipe belongs to the GrapheneOS install that comes first.
+- Play services exist, sandboxed, in two zones with throwaway accounts, never in Home.
+- What cannot be scripted is generated into a MANUAL.md to work through by hand.
+
+## Repositories
+
+- [andashi/provisioning](https://github.com/andashi/provisioning) — the declarative config and the provisioning chain
+- [andashi/home](https://github.com/andashi/home) — the launcher, forked from Kvaesitso, GPL-3.0

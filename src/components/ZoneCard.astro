@@ -1,0 +1,66 @@
+---
+import type { Zone } from "../data/zones";
+interface Props { zone: Zone }
+const { zone } = Astro.props;
+const rows: [string, string][] = [
+  ["Network analogue", zone.analogue],
+  ["Runtime", zone.runtime],
+  ["VPN", zone.vpn],
+  ["Lockdown", zone.lockdown ? "yes — no connection without the VPN" : "no"],
+  ["Play services", zone.play],
+  ["Unlock", zone.unlock],
+];
+---
+
+<article class="zone" data-zone={zone.id}>
+  <img src={`/zones/${zone.id}.jpg`} alt={`Wallpaper of the ${zone.name} zone`}
+       width="560" height="560" loading="lazy" decoding="async" />
+  <div class="body">
+    <h3>{zone.name}</h3>
+    <dl>
+      {rows.map(([k, v]) => (
+        <div class="row"><dt>{k}</dt><dd>{v}</dd></div>
+      ))}
+    </dl>
+    {zone.note && <p class="note">{zone.note}</p>}
+  </div>
+</article>
+
+<style>
+  /* Die Akzente stehen hier statisch statt als inline style: die CSP der Seite
+     erlaubt kein style-Attribut, und das ist richtig so. Urspruung der Werte
+     ist der Monet-Seed je Zone in provisioning/config/theming.json. */
+  .zone[data-zone="home"]    { --accent: #D8DEE9; }
+  .zone[data-zone="cloud"]   { --accent: #4285F4; }
+  .zone[data-zone="gadgets"] { --accent: #F9AB00; }
+  .zone[data-zone="ops"]     { --accent: #7C4DFF; }
+  .zone[data-zone="lab"]     { --accent: #00BCD4; }
+  .zone[data-zone="anon"]    { --accent: #9E9E9E; }
+
+  .zone {
+    background: var(--bg-raised);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .zone img {
+    width: 100%; height: 132px; object-fit: cover; display: block;
+    border-bottom: 2px solid var(--accent);
+  }
+  .body { padding: 1.1rem 1.2rem 1.25rem; display: flex; flex-direction: column; gap: 0.75rem; flex: 1; }
+  h3 { color: var(--accent); }
+  dl { margin: 0; display: grid; gap: 0.3rem; }
+  .row { display: grid; grid-template-columns: 8.5rem 1fr; gap: 0.6rem; font-size: 0.875rem; }
+  dt { color: var(--ink-dim); }
+  dd { margin: 0; color: var(--ink); }
+  .note {
+    margin: 0; padding-top: 0.8rem; border-top: 1px solid var(--line);
+    color: var(--ink-mut); font-size: 0.875rem;
+  }
+  @media (max-width: 26rem) {
+    .row { grid-template-columns: 1fr; gap: 0; }
+    dt { font-size: 0.8rem; }
+  }
+</style>

@@ -1,0 +1,48 @@
+[
+  {
+    "subname": "",
+    "type": "A",
+    "ttl": 3600,
+    "records": [
+      "185.199.108.153",
+      "185.199.109.153",
+      "185.199.110.153",
+      "185.199.111.153"
+    ]
+  },
+  {
+    "subname": "",
+    "type": "AAAA",
+    "ttl": 3600,
+    "records": [
+      "2606:50c0:8000::153",
+      "2606:50c0:8001::153",
+      "2606:50c0:8002::153",
+      "2606:50c0:8003::153"
+    ]
+  },
+  {
+    "subname": "www",
+    "type": "CNAME",
+    "ttl": 3600,
+    "records": ["andashi.github.io."]
+  },
+  {
+    "subname": "",
+    "type": "MX",
+    "ttl": 3600,
+    "records": ["0 ."]
+  },
+  {
+    "subname": "",
+    "type": "TXT",
+    "ttl": 3600,
+    "records": ["\"v=spf1 -all\""]
+  },
+  {
+    "subname": "_dmarc",
+    "type": "TXT",
+    "ttl": 3600,
+    "records": ["\"v=DMARC1; p=reject; adkim=s; aspf=s\""]
+  }
+]

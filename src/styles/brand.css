@@ -1,0 +1,94 @@
+/* Farben aus ../brand/README.md. Die Rampe ist aus den Zonen-Wallpapern
+   gemessen, eine Stufe heisser gezogen - nicht hier erfinden, dort nachlesen. */
+:root {
+  --magenta: #ff1f7a;
+  --pink: #ff5c9e;
+  --coral: #ff7a5c;
+  --gold: #ffd84d;
+  --berry: #8a1145;
+  --deep: #3a0a22;
+  --auberg: #2a0518;
+  --tube: #2ce8ff;
+
+  --bg: #070409;
+  --bg-raised: #120a15;
+  --line: #291a2b;
+  --ink: #f6eef2;
+  --ink-mut: #a595a0;
+  --ink-dim: #8f8290;   /* geprueft: >= 4.5:1 auf --bg und --bg-raised */
+
+  --measure: 34rem;
+  --gutter: clamp(1rem, 4vw, 2.5rem);
+  /* Beide selbst gehostet ueber @fontsource-variable, in Base.astro
+     eingebunden - vorher stand hier ein Name, den nichts geladen hat. */
+  --sans: "Inter Variable", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --mono: "JetBrains Mono Variable", ui-monospace, "SF Mono", Menlo, monospace;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font: 400 clamp(1rem, 0.97rem + 0.2vw, 1.075rem)/1.65 var(--sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1, h2, h3 { line-height: 1.15; letter-spacing: -0.02em; font-weight: 650; margin: 0; }
+h1 { font-size: clamp(2.1rem, 1.5rem + 3vw, 3.6rem); letter-spacing: -0.035em; }
+h2 { font-size: clamp(1.5rem, 1.2rem + 1.4vw, 2.15rem); }
+h3 { font-size: 1.05rem; font-weight: 600; }
+p { margin: 0 0 1rem; }
+p:last-child { margin-bottom: 0; }
+a { color: var(--tube); text-decoration: none; }
+a:hover { text-decoration: underline; text-underline-offset: 3px; }
+code, pre { font-family: var(--mono); font-size: 0.86em; }
+
+.wrap { width: min(72rem, 100%); margin-inline: auto; padding-inline: var(--gutter); }
+.lede { color: var(--ink-mut); font-size: 1.15em; max-width: var(--measure); }
+.mut { color: var(--ink-mut); }
+.dim { color: var(--ink-dim); }
+
+section { padding-block: clamp(3.5rem, 8vw, 7rem); border-top: 1px solid var(--line); }
+section:first-of-type { border-top: 0; }
+
+.kicker {
+  font: 600 0.72rem/1 var(--mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  margin-bottom: 1.1rem;
+  display: block;
+}
+
+.btn {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  padding: 0.7rem 1.15rem; border-radius: 999px;
+  border: 1px solid var(--line); color: var(--ink);
+  background: var(--bg-raised); font-weight: 550; font-size: 0.95rem;
+}
+.btn:hover { border-color: var(--tube); color: var(--tube); text-decoration: none; }
+.btn--primary {
+  background: linear-gradient(180deg, var(--magenta), #d4145f);
+  border-color: transparent; color: #fff;
+}
+.btn--primary:hover { color: #fff; border-color: transparent; filter: brightness(1.08); }
+
+.grid { display: grid; gap: clamp(1rem, 2.5vw, 1.75rem); }
+.card {
+  background: var(--bg-raised); border: 1px solid var(--line);
+  border-radius: 14px; padding: 1.25rem 1.35rem;
+}
+
+/* Die Rampe als Trenner - dasselbe Motiv wie die Schnitte in der Marke */
+.ramp { height: 3px; border: 0; margin: 0;
+  background: linear-gradient(90deg, var(--magenta), var(--coral) 45%, var(--gold) 70%, var(--tube)); }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  * { animation: none !important; transition: none !important; }
+}

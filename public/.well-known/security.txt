@@ -1,0 +1,6 @@
+# Reports go through GitHub's private advisory flow, so nothing has to be
+# mailed in the clear. Expires is a hard date - renew it before it passes.
+Contact: https://github.com/andashi/home/security/advisories/new
+Expires: 2027-09-20T00:00:00.000Z
+Preferred-Languages: en, de
+Canonical: https://andashi.org/.well-known/security.txt

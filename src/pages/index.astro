@@ -1,0 +1,452 @@
+---
+import Base from "../layouts/Base.astro";
+import ZoneCard from "../components/ZoneCard.astro";
+import { zones } from "../data/zones";
+
+// Als Zeichenketten, nicht als Markup: in Astro-Vorlagen wuerde { } sonst als
+// Ausdruck gelesen. Beide Blöcke sind aus den Repos, nicht ausgedacht.
+const launcherJson = String.raw`{
+  "schemaVersion": 1,
+  "icons": { "themed": true, "pack": "app.lawnchair.lawnicons" },
+  "appearance": {
+    "transparency": { "name": "fold-glass", "background": 0.31 },
+    "wallpaper": { "image": "home.jpg", "target": "both" },
+  },
+  "home": {
+    "searchBar": { "position": "bottom" },
+    "dock": { "favorites": [{ "packageName": "org.thoughtcrime.securesms" }] },
+    "widgets": { "enabled": true, "widgets": ["weather", "calendar"] },
+    "clock": { "style": "digital1", "fillHeight": true },
+  },
+}`;
+
+const shots = [
+  ["home", "Home", "The colourless one. Colour signals that you are not home."],
+  ["cloud", "Cloud", "The DMZ, where an app may talk to whoever it likes."],
+  ["gadgets", "Gadgets", "The IoT zone, behind its own aggressive filter."],
+  ["ops", "Ops", "Management. Stopped until it is needed."],
+  ["lab", "Lab", "Guest network. Wiped often."],
+  ["anon", "Anon", "Orbot, lockdown, no fingerprint."],
+];
+
+const files = [
+  ["config/profiles.json", "What a zone is: its VPN and whether that VPN locks the zone down, whether it runs, is on demand or stays stopped, how it unlocks, whether Play services exist in it at all."],
+  ["config/apps.json", "Which app lives in which zones, where its binary comes from, whether it may have the INTERNET permission, and which scopes it gets instead of full access."],
+  ["config/settings.json", "Android settings per namespace — globally, for all profiles, or for one zone."],
+  ["config/theming.json", "One source for the visual identity: Monet palette per zone, wallpaper, status bar, keyboard, and which launcher holds the HOME role."],
+  ["config/features.json", "The platform features a zone uses: work profile, private space, inter-profile sharing."],
+  ["config/launcher/*.json", "Generated from the above, one file per zone, pushed into the launcher and read back."],
+];
+
+const profilesJson = String.raw`{
+  "key": "anon",
+  "label": "Anon",
+  "zone": "—",
+  "create": true,
+  "runtime": "stopped",
+  "vpn": "orbot",
+  "vpn_pkg": "org.torproject.android",
+  "vpn_lockdown": true,
+  "vpn_note": "Mandatory: without it, traffic leaves past Tor.",
+  "play": "none",
+  "unlock": "password only, no fingerprint",
+}`;
+
+const adb = String.raw`# push the config into the launcher of Android user N
+adb shell content write --user N \
+  --uri content://org.andashi.home.config-ingest/launcher.json < launcher.json
+
+# ask it to reload, then read the effective state back out
+adb shell content call --user N \
+  --uri content://org.andashi.home.config-ingest --method reload`;
+
+const mechanism = [
+  {
+    title: "adb, not root",
+    body: "Three shell commands per Android user. No root, no Magisk, no system app, no accessibility service, nothing left running on the device that could be talked into anything later.",
+  },
+  {
+    title: "A sandbox it cannot leave",
+    body: "The launcher takes its configuration through a content provider into its own files directory. It holds no system powers and needs no permissions to be configured — the config can only reach the launcher, never the platform.",
+  },
+  {
+    title: "Read back, not reported",
+    body: "Provisioning does not trust an exit code. It writes, triggers a reload, reads the effective state and the diagnostics of that reload back off the device, and fails when they disagree with the file.",
+  },
+];
+
+const limits = [
+  ["It is not anonymity.", "Anon is a zone with Orbot and mandatory lockdown, not a cloak. Everything outside that zone is an ordinary phone with an ordinary network trail."],
+  ["It needs a supported Pixel and GrapheneOS.", "Plus a computer with adb and a bootloader you are willing to unlock. There is no build for anything else, and no plan to pretend otherwise."],
+  ["It builds on a wiped phone, it does not wipe one.", "Zones are Android users: provisioning creates them and can remove them again, which destroys that zone's data and nothing else. The device-wide wipe belongs to the GrapheneOS install that comes first."],
+  ["Android runs three profiles at once.", "Not six. The model plans around that limit: two zones are stopped, two run on demand, and a stopped profile has its keys evicted."],
+  ["Play services exist here, sandboxed, in two zones.", "With throwaway accounts, and never in Home. That is a trade with a price, not a purity claim."],
+  ["Not everything can be scripted.", "Whatever cannot be is generated into a MANUAL.md you work through by hand — listed, not hidden."],
+];
+---
+
+<Base
+  title="andashi — a phone you come home to"
+  description="A GrapheneOS phone declared in code: six profiles as network zones, a search-first launcher configured by one file per zone, applied over adb and verified by reading the device back."
+>
+  <header class="hero">
+    <div class="wrap inner">
+      <div class="copy">
+        <h1>A phone you come home to</h1>
+        <p class="lede">
+          andashi is a GrapheneOS phone declared in code. What the zones are,
+          which app lives in which of them, what each one may reach, down to the
+          home screen — all of it is files. Applied over adb, and verified by
+          reading the device back rather than by trusting that it worked.
+        </p>
+        <div class="actions">
+          <a class="btn btn--primary" href="#zones">See the model</a>
+          <a class="btn" href="https://github.com/andashi/provisioning">The provisioning</a>
+        </div>
+        <p class="warn">
+          Early, and breaking changes are the normal case. It runs against a
+          phone that already has GrapheneOS on it — installing that is what
+          wipes a device, not this.
+        </p>
+      </div>
+
+      <figure class="mark">
+        <picture>
+          <source srcset="/logo.webp" type="image/webp" />
+          <img id="mark" src="/logo.png" alt="The andashi mark: a sliced sun over a glazed bowl"
+               width="704" height="704" fetchpriority="high" />
+        </picture>
+      </figure>
+    </div>
+    <hr class="ramp" />
+  </header>
+
+  <main>
+    <section id="name" class="wrap">
+      <span class="kicker">The name</span>
+      <h2>an + dashi</h2>
+      <div class="two">
+        <p class="lede">
+          Dashi is the stock a Japanese kitchen starts from: kombu, katsuobushi,
+          water. You never taste it on its own, it is in everything, and it is
+          the reason the rest works.
+        </p>
+        <p class="mut">
+          That is what a distribution is. The base everything else is cooked in,
+          and when it is any good, nobody notices it — you notice the phone, not
+          the six files underneath. The <em>an</em> is the Android part, and the
+          mark is the sun those files put on every home screen.
+        </p>
+      </div>
+    </section>
+
+    <section id="config" class="wrap">
+      <span class="kicker">Configured, not clicked</span>
+      <h2>The whole phone, declared</h2>
+      <p class="lede">
+        The zones are not set up by hand and then described — they are described
+        and then set up. Six files hold the phone: what a zone is, which apps
+        live in it, what they may reach, how it looks. Every deterministic
+        setting is a key in one of them.
+      </p>
+
+      <dl class="files">
+        {files.map(([name, what]) => (
+          <div class="file">
+            <dt><code>{name}</code></dt>
+            <dd class="mut">{what}</dd>
+          </div>
+        ))}
+      </dl>
+
+      <div class="split">
+        <div>
+          <pre><code>{profilesJson}</code></pre>
+          <p class="cap">A zone in <code>profiles.json</code>. The lockdown flag is not a preference — for Anon it is the difference between Tor and a leak.</p>
+          <pre><code>{launcherJson}</code></pre>
+          <p class="cap">Its home screen, generated from the same sources and pushed per Android user. Comments and trailing commas are fine.</p>
+          <pre><code>{adb}</code></pre>
+          <p class="cap">How it reaches the phone. Per Android user, without root.</p>
+        </div>
+        <figure class="phone">
+          <div class="screen"><img src="/shots/home.jpg" alt="The Home zone's home screen: clock, wallpaper, search bar" width="540" height="960" loading="lazy" /></div>
+          <figcaption class="cap">What that file produces: the Home zone, straight out of a provisioning run.</figcaption>
+        </figure>
+      </div>
+
+      <p class="mut after">
+        Re-running is the normal case, not the emergency: every step checks
+        before it writes, and pushing an unchanged file changes nothing. A zone
+        can be changed long after it was created — its apps, permissions,
+        settings, VPN, theme and home screen are all re-applied in place.
+      </p>
+    </section>
+
+    <section id="zones" class="wrap">
+      <span class="kicker">The model</span>
+      <h2>Six zones, one phone</h2>
+      <p class="lede">
+        The phone is treated as a segmented network. The question when installing
+        an app is never “do I want this app?” but “which zone is this app allowed
+        to do damage in?”. Android allows exactly one VPN per profile, so the
+        assignment is enforced by the platform rather than by discipline.
+      </p>
+      <div class="grid zones">
+        {zones.map((zone) => <ZoneCard zone={zone} />)}
+      </div>
+      <p class="mut after">
+        Work is not a zone of its own: it is a managed profile inside Home, with
+        its own VPN and lockdown, and its apps show badged in Home's launcher.
+      </p>
+    </section>
+
+    <section id="screens">
+      <div class="wrap">
+        <span class="kicker">Nothing to arrange</span>
+        <h2>Six home screens, one page each</h2>
+        <p class="lede">
+          A clock, the search bar, and whatever the dock and the widgets hold.
+          Apps live in search, not on the desktop, so the home screen never
+          fills up and never needs tidying. The wallpaper is how you know which
+          zone you are in.
+        </p>
+      </div>
+
+      <div class="strip" tabindex="0" role="region"
+           aria-label="Home screens of the six zones, scrollable sideways">
+        {shots.map(([id, label, note]) => (
+          <figure class="shot">
+            <div class="screen">
+              <img src={`/shots/${id}.jpg`} alt={`The ${label} zone's home screen`}
+                   width="540" height="960" loading="lazy" decoding="async" />
+            </div>
+            <figcaption><strong>{label}</strong><span class="cap">{note}</span></figcaption>
+          </figure>
+        ))}
+      </div>
+
+      <div class="wrap">
+        <h3 class="sub">The same launcher, a different catalogue</h3>
+        <p class="mut narrow">
+          Which app exists in a zone is declared in <code>apps.json</code>, so
+          the drawer differs per zone. Home has a Work tab — the managed profile
+          inside it — and carries the identity and secrets apps. Anon has
+          neither, and no Play services anywhere near it.
+        </p>
+        <div class="pair">
+          <figure class="shot">
+            <div class="screen"><img src="/shots/home-drawer.jpg" alt="The Home zone's app drawer" width="540" height="960" loading="lazy" /></div>
+            <figcaption><strong>Home</strong><span class="cap">Personal and Work, side by side.</span></figcaption>
+          </figure>
+          <figure class="shot">
+            <div class="screen"><img src="/shots/anon-drawer.jpg" alt="The Anon zone's app drawer" width="540" height="960" loading="lazy" /></div>
+            <figcaption><strong>Anon</strong><span class="cap">One profile, and only what it needs.</span></figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <section id="mechanism" class="wrap">
+      <span class="kicker">The hard part</span>
+      <h2>Configuration without a backdoor</h2>
+      <p class="lede">
+        Configuring Android as code usually means root, a privileged system app,
+        or an accessibility service that can read the screen. All three open a
+        hole in exactly the place GrapheneOS closes. So none of them is used.
+      </p>
+      <div class="grid three">
+        {mechanism.map((m) => (
+          <div class="card">
+            <h3>{m.title}</h3>
+            <p class="mut">{m.body}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <section id="limits" class="wrap">
+      <span class="kicker">Honestly</span>
+      <h2>What it does not promise</h2>
+      <p class="lede">
+        A hardening project that only lists advantages is not credible. These are
+        the limits, and they are not going to be buried in a FAQ.
+      </p>
+      <ul class="limits">
+        {limits.map(([head, body]) => (
+          <li><strong>{head}</strong> <span class="mut">{body}</span></li>
+        ))}
+      </ul>
+    </section>
+
+    <section id="start" class="wrap">
+      <span class="kicker">What you need</span>
+      <h2>Nine minutes and a phone with GrapheneOS on it</h2>
+      <div class="grid three">
+        <div class="card"><h3>A device</h3><p class="mut">A supported Pixel with GrapheneOS already installed and set up. That install is the step that unlocks the bootloader and clears the device.</p></div>
+        <div class="card"><h3>A computer</h3><p class="mut">Anything with <code>adb</code> and <code>jq</code>. No agent runs on the phone.</p></div>
+        <div class="card"><h3>About nine minutes</h3><p class="mut">For all six zones. Running it again is the normal case, not the emergency.</p></div>
+      </div>
+      <div class="actions wide">
+        <a class="btn btn--primary" href="https://github.com/andashi/provisioning">andashi/provisioning</a>
+        <a class="btn" href="https://github.com/andashi/home">andashi/home — the launcher</a>
+      </div>
+      <p class="mut after">
+        No newsletter, no Discord. Watching the repositories is the way to
+        follow this.
+      </p>
+    </section>
+
+    <section id="faq" class="wrap">
+      <span class="kicker">Reasonable objections</span>
+      <h2>Why not just a shell script?</h2>
+      <dl class="faq">
+        <div>
+          <dt>Why not LineageOS and a few shell commands?</dt>
+          <dd class="mut">
+            Because a script tells you it succeeded. The interesting part here is
+            not writing settings, it is reading them back and failing loudly when
+            the device disagrees with the file — and doing that per profile, six
+            times, without root. The GrapheneOS base is the other half: verified
+            boot and a hardened runtime are not something a script adds later.
+          </dd>
+        </div>
+        <div>
+          <dt>Why not Magisk modules, or a configuration app?</dt>
+          <dd class="mut">
+            Both need the permissions that make the hardening pointless. Root and
+            an accessibility service are exactly the holes this is built to avoid,
+            so configuration goes through adb from outside and nothing privileged
+            stays behind on the phone.
+          </dd>
+        </div>
+        <div>
+          <dt>Can I run it on a phone that is not a Pixel?</dt>
+          <dd class="mut">
+            No. GrapheneOS supports Pixels, and everything here assumes it. The
+            zone model would port to plain Android, but without verified boot and
+            the hardened runtime it would be a different, weaker thing.
+          </dd>
+        </div>
+        <div>
+          <dt>Six profiles sounds like a lot of switching.</dt>
+          <dd class="mut">
+            It is. Two of them are stopped most of the time and two run on demand,
+            because Android only runs three at once. If you want one phone for
+            everything with no seams, this is the wrong project.
+          </dd>
+        </div>
+      </dl>
+    </section>
+  </main>
+
+  <footer class="wrap">
+    <img src="/mark.svg" alt="" width="40" height="40" />
+    <p class="dim">
+      andashi — a GrapheneOS distribution. Launcher under GPL-3.0, forked from
+      Kvaesitso. Built at <a href="https://inspirationlabs.com">Inspirationlabs</a>.
+    </p>
+  </footer>
+</Base>
+
+<style>
+  .hero { padding-top: clamp(2.5rem, 6vw, 5rem); }
+  .hero .inner {
+    display: grid; gap: clamp(2rem, 5vw, 4rem); align-items: center;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+    padding-bottom: clamp(3rem, 7vw, 5.5rem);
+  }
+  .copy { min-width: 0; }
+  .actions { display: flex; flex-wrap: wrap; gap: 0.7rem; margin-top: 1.75rem; }
+  .actions.wide { margin-top: 2rem; }
+  .warn {
+    margin-top: 1.5rem; color: var(--ink-dim); font-size: 0.9rem;
+    border-left: 2px solid var(--berry); padding-left: 0.8rem; max-width: 30rem;
+  }
+
+  .mark { margin: 0; display: flex; align-items: center; justify-content: center; }
+  .mark picture { display: contents; }
+  .mark img {
+    /* height: auto ist nicht optional: das height-Attribut am <img> wirkt als
+       CSS-Hinweis, und mit definierter Breite UND Hoehe wird aspect-ratio
+       ignoriert - das Bild wird dann auf die Attributhoehe gestreckt. */
+    width: min(100%, 22rem); height: auto; aspect-ratio: 1;
+    border-radius: 22px; background: #000; display: block;
+  }
+
+  .two { display: grid; gap: clamp(1rem, 3vw, 2.5rem); margin-top: 1.5rem;
+         grid-template-columns: repeat(auto-fit, minmax(19rem, 1fr)); max-width: 58rem; }
+  .strip:focus-visible { outline: 2px solid var(--tube); outline-offset: 4px; }
+  .faq { margin: 2.25rem 0 0; display: grid; gap: 1.5rem; max-width: 52rem; }
+  .faq dt { font-weight: 600; margin-bottom: 0.35rem; }
+  .faq dd { margin: 0; }
+
+  .files { margin: 2.25rem 0 0; display: grid; gap: 0; max-width: 58rem;
+           border-top: 1px solid var(--line); }
+  .file { display: grid; grid-template-columns: 15rem 1fr; gap: 1.25rem;
+          padding: 0.85rem 0; border-bottom: 1px solid var(--line); }
+  .files dt code { color: var(--gold); font-size: 0.85rem; }
+  .files dd { margin: 0; font-size: 0.925rem; }
+
+  .split { display: grid; gap: clamp(1.5rem, 4vw, 3rem); margin-top: 2.25rem;
+           grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.75fr); align-items: start; }
+  pre {
+    margin: 0 0 0.6rem; padding: 1.1rem 1.2rem; overflow-x: auto;
+    background: var(--bg-raised); border: 1px solid var(--line);
+    border-radius: 14px; line-height: 1.55; color: #ffd9e6;
+  }
+  pre + .cap { margin-bottom: 1.6rem; }
+  .cap { color: var(--ink-dim); font-size: 0.85rem; margin: 0; }
+  .cap code { color: var(--ink-mut); }
+
+  .phone { margin: 0; }
+  .screen {
+    border: 8px solid #1b1020; border-radius: 34px; overflow: hidden;
+    box-shadow: 0 30px 60px -30px #ff1f7a55; line-height: 0;
+  }
+  .screen img { width: 100%; height: auto; display: block; }
+  .phone figcaption { margin-top: 0.9rem; }
+
+  /* Waagerechter Streifen: sechs Telefone passen nie in eine Zeile, also
+     scrollt er, statt die Bilder auf Briefmarken zu schrumpfen. */
+  #screens { position: relative; }
+  #screens::after {
+    content: ""; position: absolute; top: 0; right: 0; width: 5rem; height: 100%;
+    background: linear-gradient(90deg, transparent, var(--bg));
+    pointer-events: none;
+  }
+  @media (max-width: 40rem) { #screens::after { width: 2rem; } }
+  .strip {
+    display: flex; gap: 1.25rem; overflow-x: auto; scroll-snap-type: x proximity;
+    padding: 2.25rem var(--gutter) 0.5rem;
+    scrollbar-width: thin; scrollbar-color: var(--line) transparent;
+  }
+  .shot { margin: 0; flex: 0 0 auto; width: 270px; scroll-snap-align: center; }
+  .shot .screen { border-width: 6px; border-radius: 26px; }
+  .shot figcaption { margin-top: 0.75rem; display: grid; gap: 0.15rem; font-size: 0.9rem; }
+  .shot figcaption .cap { font-size: 0.82rem; }
+  .sub { margin-top: 3.25rem; }
+  .narrow { max-width: 42rem; margin-top: 0.6rem; }
+  .pair { display: flex; gap: 1.25rem; margin-top: 1.75rem; flex-wrap: wrap; }
+
+  .zones { grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr)); margin-top: 2.25rem; }
+  .three { grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); margin-top: 2.25rem; }
+  .card h3 { margin-bottom: 0.5rem; }
+  .after { margin-top: 1.75rem; font-size: 0.9rem; max-width: 46rem; }
+
+  .limits { list-style: none; margin: 2.25rem 0 0; padding: 0; display: grid; gap: 0.9rem;
+            max-width: 52rem; }
+  .limits li { padding-left: 1.1rem; border-left: 2px solid var(--line); }
+  .limits strong { font-weight: 600; }
+
+  footer { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+           padding-block: 3rem; border-top: 1px solid var(--line); }
+  footer p { font-size: 0.85rem; max-width: 42rem; }
+
+  @media (max-width: 54rem) {
+    .file { grid-template-columns: 1fr; gap: 0.2rem; }
+    .hero .inner { grid-template-columns: 1fr; }
+    .mark { order: -1; }
+    .split { grid-template-columns: 1fr; }
+    .phone { max-width: 20rem; }
+  }
+</style>

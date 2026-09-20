@@ -1,0 +1,16 @@
+# Cloudflare Pages liest diese Datei. GitHub Pages kann keine Header setzen -
+# dort gilt nur die CSP als <meta>, und frame-ancestors, HSTS und die
+# Permissions-Policy fallen weg. Fuer ein Haertungsprojekt ist das das
+# Argument, die Seite nicht auf GitHub Pages zu betreiben.
+/*
+  Content-Security-Policy: default-src 'none'; img-src 'self'; style-src 'self'; font-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'
+  Referrer-Policy: no-referrer
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Cross-Origin-Opener-Policy: same-origin
+  Cross-Origin-Resource-Policy: same-origin
+  Permissions-Policy: accelerometer=(), camera=(), geolocation=(), gyroscope=(), microphone=(), payment=(), usb=()
+  Strict-Transport-Security: max-age=63072000; includeSubDomains
+
+/_astro/*
+  Cache-Control: public, max-age=31536000, immutable
