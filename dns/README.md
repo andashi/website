@@ -28,11 +28,16 @@ invent).
 
 TTL is 3600 because that is deSEC's documented minimum for the zone.
 
+Two things to expect when applying this: deSEC's secondary (`ns2.desec.org`)
+trails the primary by up to a minute, and a resolver that was asked *before* a
+record existed keeps the negative answer for up to an hour — the SOA's minimum
+is 3600. Neither is a fault; query `@ns1.desec.io` to see the truth
+immediately.
+
+| `CAA` | only Let's Encrypt may issue for this name, and nobody may issue a wildcard. Added after the first certificate was in place, and the issuer was read off the live connection (`CN=YR1`, Let's Encrypt) rather than assumed |
+
 ## Not in here yet
 
-- **CAA.** `0 issue "letsencrypt.org"` is right for GitHub Pages, but set it
-  only **after** the certificate has been issued — a CAA record in place too
-  early can block the issuance and leave the site without HTTPS.
 - **`_github-pages-challenge-andashi TXT`.** GitHub shows that value under the
   organisation's Pages settings; it verifies the domain and prevents someone
   else from claiming it on Pages later. Worth adding.

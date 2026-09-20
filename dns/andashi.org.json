@@ -25,24 +25,41 @@
     "subname": "www",
     "type": "CNAME",
     "ttl": 3600,
-    "records": ["andashi.github.io."]
+    "records": [
+      "andashi.github.io."
+    ]
   },
   {
     "subname": "",
     "type": "MX",
     "ttl": 3600,
-    "records": ["0 ."]
+    "records": [
+      "0 ."
+    ]
   },
   {
     "subname": "",
     "type": "TXT",
     "ttl": 3600,
-    "records": ["\"v=spf1 -all\""]
+    "records": [
+      "\"v=spf1 -all\""
+    ]
   },
   {
     "subname": "_dmarc",
     "type": "TXT",
     "ttl": 3600,
-    "records": ["\"v=DMARC1; p=reject; adkim=s; aspf=s\""]
+    "records": [
+      "\"v=DMARC1; p=reject; adkim=s; aspf=s\""
+    ]
+  },
+  {
+    "subname": "",
+    "type": "CAA",
+    "ttl": 3600,
+    "records": [
+      "0 issue \"letsencrypt.org\"",
+      "0 issuewild \";\""
+    ]
   }
 ]
