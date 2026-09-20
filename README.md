@@ -79,6 +79,15 @@ User-agent: Google-Extended
 Disallow: /
 ```
 
+## If a download ever appears here
+
+Right now this page describes the software and distributes none of it, so the
+GPL attaches nothing to it: the licence, the upstream copyright notices and the
+fork statement live in `andashi/home` — its readme, its `LICENSE.txt`, the
+source headers and the app's about screen. The moment an APK is offered *from
+this site*, that becomes conveying, and the notices plus a source offer have to
+travel with the download.
+
 ## Still missing
 
 - **Higher-resolution screenshots.** `public/shots/` holds the real thing, one
