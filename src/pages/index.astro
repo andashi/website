@@ -341,9 +341,11 @@ const limits = [
 
   <footer class="wrap">
     <img src="/mark.svg" alt="" width="40" height="40" />
-    <p class="dim">
-      andashi — a GrapheneOS distribution.
-    </p>
+    <p class="close">A phone you come home to.</p>
+    <nav class="ends">
+      <a href="https://github.com/andashi/provisioning">provisioning</a>
+      <a href="https://github.com/andashi/home">home</a>
+    </nav>
   </footer>
 </Base>
 
@@ -437,9 +439,15 @@ const limits = [
   .limits li { padding-left: 1.1rem; border-left: 2px solid var(--line); }
   .limits strong { font-weight: 600; }
 
-  footer { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+  footer { display: flex; align-items: center; gap: 1.25rem; flex-wrap: wrap;
            padding-block: 3rem; border-top: 1px solid var(--line); }
-  footer p { font-size: 0.85rem; max-width: 42rem; }
+  /* Die Fusszeile erklaert nichts mehr - der Hero hat das getan. Sie schliesst
+     den Kreis und haelt die zwei Repos fest. */
+  .close { margin: 0; font-size: 1rem; color: var(--ink-mut); }
+  .ends { margin-left: auto; display: flex; gap: 1.25rem; font-size: 0.9rem; }
+  .ends a { color: var(--ink-mut); }
+  .ends a:hover { color: var(--tube); }
+  @media (max-width: 34rem) { .ends { margin-left: 0; } }
 
   @media (max-width: 54rem) {
     .file { grid-template-columns: 1fr; gap: 0.2rem; }
