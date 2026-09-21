@@ -73,7 +73,7 @@ const mechanism = [
   },
   {
     title: "Signatures someone else confirmed",
-    body: "Every app is pinned to a signing certificate, and a pin is only worth as much as its source: of 22 pinned signatures, 20 are confirmed by independent third parties rather than by whoever served the download. The Tor Browser is the one checked against a real upstream GPG signature.",
+    body: "Every app is pinned to a signing certificate, and a pin is only worth as much as its witness: of 22 pinned signatures, 20 are corroborated by independent third parties rather than by whoever served the download. The two that are not are named rather than averaged away — our own build, which nobody else can corroborate by definition, and the eID app, whose pin still rests on a single download. The Tor Browser is the one verified against an upstream GPG signature, and a download that fails it is discarded.",
   },
 ];
 
