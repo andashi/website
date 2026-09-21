@@ -99,6 +99,11 @@ travel with the download.
   it, because the emulator target has no sandboxed Play. The strip is a flexbox
   and takes two or six without a rewrite. Source images live in
   `provisioning/.artifact/`, which is not checked in anywhere.
+
+  They come with the first run on real hardware, and not before: on a device
+  the wizard is walked through anyway, because that is where the PINs are set —
+  which is the only reason it stays manual at all. Four screenshots then,
+  instead of twenty-four wizard screens now.
 - DNS for andashi.org — the workflow and `public/CNAME` are ready.
 - **A contact address.** The page says to watch the repositories, because I did
   not want to publish an address nobody chose. If there should be one, it goes
