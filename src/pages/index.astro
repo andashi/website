@@ -174,8 +174,8 @@ const limits = [
           <p class="cap">How it reaches the phone. Per Android user, without root.</p>
         </div>
         <figure class="phone">
-          <div class="screen"><img src="/shots/home.jpg" alt="The Home zone's home screen: clock, wallpaper, search bar" width="540" height="960" loading="lazy" /></div>
-          <figcaption class="cap">The Home zone out of a provisioning run on the emulator, which is why it is 540 by 960 — and from 0.2.x, which still had a clock.</figcaption>
+          <div class="screen"><img src="/shots/home.webp" alt="The Home zone's home screen: wallpaper and a search bar at the bottom" width="720" height="1280" loading="lazy" /></div>
+          <figcaption class="cap">What that file produces, out of a run on the emulator: the wallpaper, and the search bar. No clock and no dock — the file does not ask for either, and the launcher does not render them.</figcaption>
         </figure>
       </div>
 
@@ -226,48 +226,50 @@ const limits = [
     <section id="screens">
       <div class="wrap">
         <span class="kicker">Nothing to arrange</span>
-        <h2>Six home screens, one page each</h2>
+        <h2>The same launcher, a different zone</h2>
         <p class="lede">
-          Screenshots from the emulator, one per zone. Apps live in search, not
-          on the desktop, so the home screen never fills up and never needs
-          tidying, and the wallpaper is how you know which zone you are in.
-          These shots are from 0.2.x: the current launcher renders neither the
-          clock nor a dock — both went with the module teardown and come back
-          with the home grid.
+          Apps live in search, not on the desktop, so a home screen never fills
+          up and never needs tidying — and the wallpaper is how you know which
+          zone you are in. Home is the colourless one, because colour signals
+          that you are not home. Both of these are from the same run today.
         </p>
       </div>
 
       <div class="strip" tabindex="0" role="region"
-           aria-label="Home screens of the six zones, scrollable sideways">
-        {shots.map(([id, label, note]) => (
-          <figure class="shot">
-            <div class="screen">
-              <img src={`/shots/${id}.jpg`} alt={`The ${label} zone's home screen`}
-                   width="540" height="960" loading="lazy" decoding="async" />
-            </div>
-            <figcaption><strong>{label}</strong><span class="cap">{note}</span></figcaption>
-          </figure>
-        ))}
+           aria-label="Home and Anon, home screen and app drawer, scrollable sideways">
+        <figure class="shot">
+          <div class="screen">
+            <img src="/shots/home.webp" alt="The Home zone's home screen" width="720" height="1280" loading="lazy" decoding="async" />
+          </div>
+          <figcaption><strong>Home</strong><span class="cap">Always on, and deliberately colourless.</span></figcaption>
+        </figure>
+        <figure class="shot">
+          <div class="screen">
+            <img src="/shots/home-drawer.webp" alt="The Home zone's app drawer, with a Personal and a Work tab" width="720" height="1280" loading="lazy" decoding="async" />
+          </div>
+          <figcaption><strong>Home, in search</strong><span class="cap">Personal and Work side by side — that second tab is the managed profile.</span></figcaption>
+        </figure>
+        <figure class="shot">
+          <div class="screen">
+            <img src="/shots/anon.webp" alt="The Anon zone's home screen, with a key in the status bar" width="720" height="1280" loading="lazy" decoding="async" />
+          </div>
+          <figcaption><strong>Anon</strong><span class="cap">The key in the status bar is Orbot, always on and locked down.</span></figcaption>
+        </figure>
+        <figure class="shot">
+          <div class="screen">
+            <img src="/shots/anon-drawer.webp" alt="The Anon zone's app drawer: Molly, Orbot, Tor Browser" width="720" height="1280" loading="lazy" decoding="async" />
+          </div>
+          <figcaption><strong>Anon, in search</strong><span class="cap">The whole zone: Molly, Orbot, Tor Browser, and what the system brings.</span></figcaption>
+        </figure>
       </div>
 
       <div class="wrap">
-        <h3 class="sub">The same launcher, a different catalogue</h3>
         <p class="mut narrow">
           Which app exists in a zone is declared in <code>apps.json</code>, so
-          the drawer differs per zone. Home has a Work tab — the managed profile
-          inside it — and carries the identity and secrets apps. Anon has
-          neither, and no Play services anywhere near it.
+          the drawer differs per zone — the same launcher, a different
+          catalogue. Home carries the identity and secrets apps and has a Work
+          tab; Anon has neither, and no Play services anywhere near it.
         </p>
-        <div class="pair">
-          <figure class="shot">
-            <div class="screen"><img src="/shots/home-drawer.jpg" alt="The Home zone's app drawer" width="540" height="960" loading="lazy" /></div>
-            <figcaption><strong>Home</strong><span class="cap">Personal and Work, side by side. The catalogue has changed since these were taken — it is a template now, not one person's inventory.</span></figcaption>
-          </figure>
-          <figure class="shot">
-            <div class="screen"><img src="/shots/anon-drawer.jpg" alt="The Anon zone's app drawer" width="540" height="960" loading="lazy" /></div>
-            <figcaption><strong>Anon</strong><span class="cap">One profile, and only what it needs.</span></figcaption>
-          </figure>
-        </div>
       </div>
     </section>
 
@@ -309,7 +311,7 @@ const limits = [
       <div class="grid three">
         <div class="card"><h3>A device</h3><p class="mut">A supported Pixel with GrapheneOS already installed and set up. That install is the step that unlocks the bootloader and clears the device.</p></div>
         <div class="card"><h3>A computer</h3><p class="mut">Anything with <code>adb</code> and <code>jq</code>. No agent runs on the phone.</p></div>
-        <div class="card"><h3>About nine minutes</h3><p class="mut">For all six zones. Running it again is the normal case, not the emergency.</p></div>
+        <div class="card"><h3>Nine and a half minutes</h3><p class="mut">575 seconds for all six zones, measured today from a clean image. Most of it is installing apps; the rest is the launcher config, where a background profile's first wallpaper costs about half a minute. Running it again is the normal case, not the emergency.</p></div>
       </div>
       <div class="actions wide">
         <a class="btn btn--primary" href="https://github.com/andashi/provisioning">andashi/provisioning</a>

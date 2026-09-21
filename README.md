@@ -90,10 +90,15 @@ travel with the download.
 
 ## Still missing
 
-- **Higher-resolution screenshots.** `public/shots/` holds the real thing, one
-  per zone plus the app drawers, but at 540x960 — they come out of
-  `provisioning/.artifact/`, which is not checked in anywhere. Displayed at
-  270px they are sharp; anything larger needs a new run at device resolution.
+- **The other four zones.** `public/shots/` holds Home and Anon, home screen
+  and drawer, from one run on 2026-09-21 with launcher 0.3.0 and the template
+  catalogue, captured at 1080x1920 and served as WebP at 720 wide. Cloud,
+  Gadgets, Ops and Lab are missing on purpose: every fresh profile stops in the
+  GrapheneOS setup wizard on first switch, six screens to tap through per zone,
+  and Cloud in particular would show a zone without the Play apps that define
+  it, because the emulator target has no sandboxed Play. The strip is a flexbox
+  and takes two or six without a rewrite. Source images live in
+  `provisioning/.artifact/`, which is not checked in anywhere.
 - DNS for andashi.org — the workflow and `public/CNAME` are ready.
 - **A contact address.** The page says to watch the repositories, because I did
   not want to publish an address nobody chose. If there should be one, it goes
