@@ -23,7 +23,7 @@ export const zones: Zone[] = [
     id: "cloud", name: "Cloud", analogue: "DMZ", runtime: "always",
     vpn: "RethinkDNS, monitoring", lockdown: false, play: "sandboxed, throwaway account",
     unlock: "PIN",
-    note: "Where Google may live: maps, video, and a narrow bridge to the self-hosted side. Play is allowed here, and the DNS filter watches.",
+    note: "Where Google may live: maps, video, Play allowed, and the DNS filter watching. Plus the hosted password manager, reachable from anywhere. No path to the self-hosted side — this zone's one VPN slot is the filter.",
   },
   {
     id: "gadgets", name: "Gadgets", analogue: "IoT VLAN", runtime: "on demand",
