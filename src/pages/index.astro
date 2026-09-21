@@ -14,9 +14,7 @@ const launcherJson = String.raw`{
   },
   "home": {
     "searchBar": { "position": "bottom" },
-    "dock": { "favorites": [{ "packageName": "org.thoughtcrime.securesms" }] },
     "widgets": { "enabled": true, "widgets": ["weather", "calendar"] },
-    "clock": { "style": "digital1", "fillHeight": true },
   },
 }`;
 
@@ -73,10 +71,15 @@ const mechanism = [
     title: "Read back, not reported",
     body: "Provisioning does not trust an exit code. It writes, triggers a reload, reads the effective state and the diagnostics of that reload back off the device, and fails when they disagree with the file.",
   },
+  {
+    title: "Signatures someone else confirmed",
+    body: "Every app is pinned to a signing certificate, and a pin is only worth as much as its source: of 22 pinned signatures, 20 are confirmed by independent third parties rather than by whoever served the download. The Tor Browser is the one checked against a real upstream GPG signature.",
+  },
 ];
 
 const limits = [
   ["It has only ever run against an emulator.", "The scripts are exercised against a GrapheneOS emulator image, which validates the chain but not the phone. What it cannot prove is written down rather than glossed over: sandboxed Play and the apps that depend on it, Play Integrity, the MAM broker and app protection policies, push notifications in daily use, fingerprint and two-factor unlock, eSIM, NFC, and arm64-only apps. A real device is the next thing this project needs."],
+  ["The managed work profile is a hypothesis, not a result.", "It is built for a work profile in which an employer's agent enforces policy, but whether Intune's app protection behaves inside a Shelter-managed profile is untested — it needs sandboxed Play, which the emulator target does not have. The Google Workspace alternative exists as a documented branch, never as a path anyone has run; even its package names are reasoned guesses."],
   ["It is not anonymity.", "Anon is a zone with Orbot and mandatory lockdown, not a cloak. Everything outside that zone is an ordinary phone with an ordinary network trail."],
   ["It needs a supported Pixel and GrapheneOS.", "Plus a computer with adb and a bootloader you are willing to unlock. There is no build for anything else, and no plan to pretend otherwise."],
   ["It builds on a wiped phone, it does not wipe one.", "Zones are Android users: provisioning creates them and can remove them again, which destroys that zone's data and nothing else. The device-wide wipe belongs to the GrapheneOS install that comes first."],
@@ -172,7 +175,7 @@ const limits = [
         </div>
         <figure class="phone">
           <div class="screen"><img src="/shots/home.jpg" alt="The Home zone's home screen: clock, wallpaper, search bar" width="540" height="960" loading="lazy" /></div>
-          <figcaption class="cap">What that file produces: the Home zone, straight out of a provisioning run — on the emulator, which is why it is 540 by 960.</figcaption>
+          <figcaption class="cap">The Home zone out of a provisioning run on the emulator, which is why it is 540 by 960 — and from 0.2.x, which still had a clock.</figcaption>
         </figure>
       </div>
 
@@ -199,6 +202,16 @@ const limits = [
       <p class="mut after">
         Work is not a zone of its own: it is a managed profile inside Home, with
         its own VPN and lockdown, and its apps show badged in Home's launcher.
+        It is the one place where someone else holds authority — an employer's
+        agent may enforce policy there, and it sees that zone, not the phone.
+      </p>
+      <p class="mut after">
+        Two things hold across all of them. About half of Home's apps have no
+        internet permission at all: a camera, a keyboard, a launcher and a
+        password manager do not need one, so they do not get one. And the
+        launcher, the keyboard and the icon pack are identical in every zone —
+        also without internet — so switching zones changes what you may reach,
+        never how the phone works.
       </p>
     </section>
 
@@ -207,10 +220,12 @@ const limits = [
         <span class="kicker">Nothing to arrange</span>
         <h2>Six home screens, one page each</h2>
         <p class="lede">
-          Screenshots from the emulator, one per zone. A clock, the search bar, and whatever the dock and the widgets hold.
-          Apps live in search, not on the desktop, so the home screen never
-          fills up and never needs tidying. The wallpaper is how you know which
-          zone you are in.
+          Screenshots from the emulator, one per zone. Apps live in search, not
+          on the desktop, so the home screen never fills up and never needs
+          tidying, and the wallpaper is how you know which zone you are in.
+          These shots are from 0.2.x: the current launcher renders neither the
+          clock nor a dock — both went with the module teardown and come back
+          with the home grid.
         </p>
       </div>
 
