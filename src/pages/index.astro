@@ -76,6 +76,7 @@ const mechanism = [
 ];
 
 const limits = [
+  ["It has only ever run against an emulator.", "The scripts are exercised against a GrapheneOS emulator image, which validates the chain but not the phone. What it cannot prove is written down rather than glossed over: sandboxed Play and the apps that depend on it, Play Integrity, the MAM broker and app protection policies, push notifications in daily use, fingerprint and two-factor unlock, eSIM, NFC, and arm64-only apps. A real device is the next thing this project needs."],
   ["It is not anonymity.", "Anon is a zone with Orbot and mandatory lockdown, not a cloak. Everything outside that zone is an ordinary phone with an ordinary network trail."],
   ["It needs a supported Pixel and GrapheneOS.", "Plus a computer with adb and a bootloader you are willing to unlock. There is no build for anything else, and no plan to pretend otherwise."],
   ["It builds on a wiped phone, it does not wipe one.", "Zones are Android users: provisioning creates them and can remove them again, which destroys that zone's data and nothing else. The device-wide wipe belongs to the GrapheneOS install that comes first."],
@@ -105,9 +106,9 @@ const limits = [
           <a class="btn" href="https://github.com/andashi/provisioning">The provisioning</a>
         </div>
         <p class="warn">
-          Early, and breaking changes are the normal case. It runs against a
-          phone that already has GrapheneOS on it — installing that is what
-          wipes a device, not this.
+          Early development, and honestly so: this has only ever run against an
+          emulator, because there is no spare phone to run it against yet.
+          Breaking changes are the normal case.
         </p>
       </div>
 
@@ -171,7 +172,7 @@ const limits = [
         </div>
         <figure class="phone">
           <div class="screen"><img src="/shots/home.jpg" alt="The Home zone's home screen: clock, wallpaper, search bar" width="540" height="960" loading="lazy" /></div>
-          <figcaption class="cap">What that file produces: the Home zone, straight out of a provisioning run.</figcaption>
+          <figcaption class="cap">What that file produces: the Home zone, straight out of a provisioning run — on the emulator, which is why it is 540 by 960.</figcaption>
         </figure>
       </div>
 
@@ -206,7 +207,7 @@ const limits = [
         <span class="kicker">Nothing to arrange</span>
         <h2>Six home screens, one page each</h2>
         <p class="lede">
-          A clock, the search bar, and whatever the dock and the widgets hold.
+          Screenshots from the emulator, one per zone. A clock, the search bar, and whatever the dock and the widgets hold.
           Apps live in search, not on the desktop, so the home screen never
           fills up and never needs tidying. The wallpaper is how you know which
           zone you are in.
