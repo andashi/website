@@ -36,7 +36,7 @@ adb. No root, no privileged app, nothing agentic running on the phone.
 - It is not anonymity. Anon is a zone, not a cloak.
 - Needs a GrapheneOS-supported Pixel, a computer with adb, and an unlocked bootloader.
 - It builds on a wiped phone, it does not wipe one: the device-wide wipe belongs to the GrapheneOS install that comes first.
-- Play services exist, sandboxed, in two zones with throwaway accounts, never in Home.
+- Play services exist, sandboxed: in Cloud and Gadgets with throwaway accounts, in the work profile with the company's, optionally in Lab, never in Home or Anon.
 - What cannot be scripted is generated into a MANUAL.md to work through by hand.
 
 ## Repositories

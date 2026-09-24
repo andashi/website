@@ -78,9 +78,13 @@ const adb = String.raw`# push the config into the launcher of Android user N
 adb shell content write --user N \
   --uri content://org.andashi.home.config-ingest/launcher.json < launcher.json
 
-# ask it to reload, then read the effective state back out
-adb shell content call --user N \
-  --uri content://org.andashi.home.config-ingest --method reload`;
+# ask it to reload
+adb shell am broadcast --user N -a org.andashi.home.action.RELOAD_CONFIG \
+  -n org.andashi.home/de.mm20.launcher2.config.service.ReloadConfigReceiver
+
+# read back what it loaded, and what it made of it
+adb shell content query --user N --uri content://org.andashi.home.state/diagnostics
+adb shell content query --user N --uri content://org.andashi.home.state/config`;
 
 const mechanism = [
   {
@@ -108,7 +112,7 @@ const limits = [
   ["It needs a supported Pixel and GrapheneOS.", "Plus a computer with adb and a bootloader you are willing to unlock. There is no build for anything else, and no plan to pretend otherwise."],
   ["It builds on a wiped phone, it does not wipe one.", "Zones are Android users: provisioning creates them and can remove them again, which destroys that zone's data and nothing else. The device-wide wipe belongs to the GrapheneOS install that comes first."],
   ["Android runs three profiles at once.", "Not six. The model plans around that limit: two zones are stopped, two run on demand, and a stopped profile has its keys evicted."],
-  ["Play services exist here, sandboxed, in two zones.", "With throwaway accounts, and never in Home. That is a trade with a price, not a purity claim."],
+  ["Play services exist here, sandboxed.", "In Cloud and Gadgets with throwaway accounts, in the work profile with the company's, optionally in Lab, never in Home or Anon. That is a trade with a price, not a purity claim."],
   ["Not everything can be scripted.", "Whatever cannot be is generated into a MANUAL.md you work through by hand — listed, not hidden."],
 ];
 ---
@@ -274,9 +278,11 @@ const limits = [
         not exist from the outside.
       </p>
       <p class="mut after">
-        Two things hold across all of them. About half of Home's apps have no
-        internet permission at all: a camera, a keyboard, a launcher and a
-        password manager do not need one, so they do not get one. And the
+        Two things hold across all of them. Eleven of Home's apps have no
+        internet permission at all: the cameras, the keyboard, the launcher,
+        the two-factor authenticator and two AI chat apps that run on the phone
+        itself do not need one, so they do not get one. An AI that cannot
+        phone home is not a promise, it is a missing permission. And the
         launcher, the keyboard and the icon pack are identical in every zone —
         also without internet — so switching zones changes what you may reach,
         never how the phone works.
@@ -351,8 +357,9 @@ const limits = [
             </p>
             <p class="mut">
               Kvaesitso, the launcher andashi's home screen is forked from, puts
-              Web search, YouTube and Google under every query, in every zone. The distribution removes
-              them. The launcher has no internet permission in any zone, so what
+              Web search, YouTube and Google under every query, in every zone.
+              andashi's launcher no longer does, and provisioning removes them
+              from phones that already had them. The launcher has no internet permission in any zone, so what
               you type into it stays on the phone. Contact search exists only in
               Home, the one zone that holds contacts; the other zones do not
               nag for a permission they should not have.
@@ -406,8 +413,10 @@ const limits = [
             <p class="mut">
               On a Pixel Fold the favourites move into a column on the right
               edge, where the right thumb rests, on the outer screen and on the
-              inner one alike. Open the phone and the home screen follows; the
-              cut in the recording is Android switching displays, not an edit.
+              inner one alike. Open the phone and the home screen follows. The
+              hard cut in the recording is Android switching displays; the only
+              processing restores the outer screen's proportions, which the
+              recorder had stretched.
             </p>
             <p class="mut">
               On the big screen search splits into two panes that never cross
@@ -474,7 +483,7 @@ const limits = [
 
     <section id="start" class="wrap">
       <span class="kicker">What you need</span>
-      <h2>Nine and a half minutes, and a phone with GrapheneOS on it</h2>
+      <h2>Four minutes, and a phone with GrapheneOS on it</h2>
       <p class="lede">
         This is not an installer yet. Today it asks for a computer and for being
         at ease in a terminal. If that is not you, it is fine to watch for now.
@@ -482,7 +491,7 @@ const limits = [
       <div class="grid three">
         <div class="card"><h3>A device</h3><p class="mut">A supported Pixel with GrapheneOS already installed and set up. That install is the step that unlocks the bootloader and clears the device.</p></div>
         <div class="card"><h3>A computer</h3><p class="mut">Anything with <code>adb</code> and <code>jq</code>. No agent runs on the phone.</p></div>
-        <div class="card"><h3>Nine and a half minutes</h3><p class="mut">575 seconds for all six zones, measured on 21 September from a clean emulator image. Most of it is installing apps; the rest is the launcher config, where a background profile's first wallpaper costs about half a minute. Running it again is the normal case, not the emergency.</p></div>
+        <div class="card"><h3>About four minutes</h3><p class="mut">241 seconds for all six zones, set up and verified, measured on 24 September on the Fold emulator from a clean snapshot, with the apps coming from copies on the computer. On a real phone it will differ. Running it again is the normal case, not the emergency.</p></div>
       </div>
       <div class="actions wide">
         <a class="btn btn--primary" href="https://github.com/andashi/provisioning">andashi/provisioning</a>
