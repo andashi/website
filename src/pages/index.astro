@@ -680,11 +680,14 @@ const limits = [
   @media (max-width: 34rem) { .ends { margin-left: 0; } }
 
   @media (max-width: 54rem) {
-    .file { grid-template-columns: 1fr; gap: 0.2rem; }
-    .hero .inner { grid-template-columns: 1fr; }
+    /* minmax(0, 1fr), nicht 1fr: eine 1fr-Spalte wird nie schmaler als ihr
+       breitester Inhalt, und die laengste Codezeile schob die Seite sonst auf
+       650 px. So scrollt der Codeblock in sich, nicht die Seite. */
+    .file { grid-template-columns: minmax(0, 1fr); gap: 0.2rem; }
+    .hero .inner { grid-template-columns: minmax(0, 1fr); }
     .mark { order: -1; }
-    .split { grid-template-columns: 1fr; }
-    .story { grid-template-columns: 1fr; }
+    .split { grid-template-columns: minmax(0, 1fr); }
+    .story { grid-template-columns: minmax(0, 1fr); }
     .story .pair { margin-top: 0; }
     .phone { max-width: 20rem; }
   }
