@@ -102,6 +102,19 @@ travel with the download.
   performance; real-device recordings replace them when the hardware is here.
   The sources live in `/tmp/andashi-share/website-assets-0.7.0/`, checked in
   nowhere.
+
+  The unfold caption ("appears in one step, dock already in its place") is a
+  claim about 0.7.1. Re-record it at the next launcher release that touches
+  unfold (andashi/home#94 is on it), not at every release. The 0.7.1 take:
+  Fold emulator, host GPU, one `adb emu screenrecord` take of the inner display
+  at 2076x2152, delivered as 948x1080 at 30 fps; the only processing restores
+  the outer screen's proportions up to the cut. That is known from the handover,
+  not from a record beside the file, and no overlay or launcher build is named,
+  so the next take (foldable, host GPU) can be compared by renderer but not
+  reproduced exactly. From then on every recording arrives with
+  its facts (instance, GPU mode, launcher version, screenrecord command, what
+  was cut or scaled; see provisioning `docs/guides/emulator.md`, "Recordings
+  for the website"), and those facts go here next to the file.
 - DNS for andashi.org — the workflow and `public/CNAME` are ready.
 - **A contact address.** The page says to watch the repositories, because I did
   not want to publish an address nobody chose. If there should be one, it goes
