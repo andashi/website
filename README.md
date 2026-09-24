@@ -93,7 +93,7 @@ travel with the download.
 ## Still missing
 
 - **Real hardware.** Every still and recording in `public/shots/` and
-  `public/video/` is from one day's run, 2026-09-24, Andashi Home 0.7.0 on the
+  `public/video/` is from 2026-09-24, Andashi Home 0.7.0 (the unfold recording 0.7.1) on the
   phone and Fold emulators (provisioned state, snapshot `provisioned-070`).
   Stills are WebP at 540 or 720 wide (Fold at 1200); videos are the untouched
   1080p H.264 recordings, `preload="none"`, with a WebP poster of a meaningful
