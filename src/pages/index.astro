@@ -4,38 +4,59 @@ import ZoneCard from "../components/ZoneCard.astro";
 import { zones } from "../data/zones";
 
 // Als Zeichenketten, nicht als Markup: in Astro-Vorlagen wuerde { } sonst als
-// Ausdruck gelesen. Beide Blöcke sind aus den Repos, nicht ausgedacht.
+// Ausdruck gelesen. Beide Blöcke sind aus den Repos, nicht ausgedacht:
+// provisioning/config/launcher/home.json und config/profiles.json, gekuerzt.
 const launcherJson = String.raw`{
-  "schemaVersion": 1,
-  "icons": { "themed": true, "pack": "app.lawnchair.lawnicons" },
+  "schemaVersion": 2,
   "appearance": {
-    "transparency": { "name": "fold-glass", "background": 0.31 },
-    "wallpaper": { "image": "home.jpg", "target": "both" },
+    "glass": { "blur": 24, "tint": 0.12, "searchWallpaperBlur": true },
+    "wallpaper": { "image": "home.jpg", "target": "both" }
   },
   "home": {
     "searchBar": { "position": "bottom" },
-    "widgets": { "enabled": true, "widgets": ["weather", "calendar"] },
+    "favorites": [
+      { "packageName": "com.android.dialer" },
+      { "packageName": "app.vanadium.browser" }
+    ]
   },
+  "search": {
+    "barPosition": "top",
+    "contacts": true,
+    "actions": [ { "type": "call" }, { "type": "message" }, … ]
+  }
 }`;
 
-// Ein Satz aus einem Lauf, damit die sechs nebeneinander wie sechs Zonen
-// aussehen und nicht wie zwei Softwareversionen. Die 0.3.0-Aufnahmen von Home
-// und Anon stehen dort, wo sie etwas belegen: neben der Konfigurationsdatei
-// und beim Drawer-Vergleich.
+// Ein Satz aus einem Lauf (Andashi Home 0.7.0, 2026-09-24), damit die sechs
+// nebeneinander wie sechs Zonen aussehen und nicht wie zwei Softwareversionen.
 const shots = [
-  ["home", "Home", "Always on, and deliberately colourless."],
-  ["cloud", "Cloud", "The DMZ, where Google may live."],
-  ["gadgets", "Gadgets", "The IoT zone, behind its own aggressive filter."],
+  ["home", "Home", "Always on, and deliberately colourless. Phone and browser pinned above the bar."],
+  ["cloud", "Cloud", "Where Google may live. Nothing pinned, so nothing but the picture."],
+  ["gadgets", "Gadgets", "The gadget zone, behind its own aggressive filter."],
   ["ops", "Ops", "Management. Stopped until it is needed."],
-  ["lab", "Lab", "Guest network, deliberately empty."],
+  ["lab", "Lab", "Deliberately empty."],
   ["anon", "Anon", "Everything through Tor, and stopped when unused."],
 ];
 
+const words = [
+  {
+    title: "GrapheneOS",
+    body: "Android, hardened. A free operating system for Google Pixel phones, made by an independent non-profit project. It runs ordinary Android apps, but Google's services are not built in, and it closes holes an ordinary phone leaves open. Where an app really needs Google Play, Play can run as a normal app in a box, without special powers. andashi builds on GrapheneOS; it is not part of that project.",
+  },
+  {
+    title: "A zone",
+    body: "A separate user on the phone, as if a second person had an account on it: its own apps, its own files, its own encryption key and its own network route. An app in one zone cannot look into another. andashi sets up six, and decides for each one what may live there.",
+  },
+  {
+    title: "Declared",
+    body: "Instead of tapping through settings for an afternoon, you describe the phone in a few text files on a computer, and a script sets it up over a USB cable. Run it again and you get the same phone. Change one line and only that line changes. Afterwards the script reads the phone back and complains if the phone disagrees.",
+  },
+];
+
 const files = [
-  ["config/profiles.json", "What a zone is: its VPN and whether that VPN locks the zone down, whether it runs, is on demand or stays stopped, how it unlocks, whether Play services exist in it at all."],
+  ["config/profiles.json", "What a zone is: its VPN and whether that VPN locks the zone down, whether it runs, is on demand or stays stopped, how it unlocks, which browser opens its links, whether Play services exist in it at all."],
   ["config/apps.json", "Which app lives in which zones, where its binary comes from, whether it may have the INTERNET permission, and which scopes it gets instead of full access."],
   ["config/settings.json", "Android settings per namespace — globally, for all profiles, or for one zone."],
-  ["config/theming.json", "One source for the visual identity: Monet palette per zone, wallpaper, status bar, keyboard, and which launcher holds the HOME role."],
+  ["config/theming.json", "One source for the visual identity: colour per zone, wallpaper, glass, the chips under a search, favourites, and which launcher holds the HOME role."],
   ["config/features.json", "The platform features a zone uses: work profile, private space, inter-profile sharing."],
   ["config/launcher/*.json", "Generated from the above, one file per zone, pushed into the launcher and read back."],
 ];
@@ -43,15 +64,14 @@ const files = [
 const profilesJson = String.raw`{
   "key": "anon",
   "label": "Anon",
-  "zone": "—",
-  "create": true,
+  "browser": "org.torproject.torbrowser",
   "runtime": "stopped",
   "vpn": "orbot",
   "vpn_pkg": "org.torproject.android",
   "vpn_lockdown": true,
   "vpn_note": "Mandatory: without it, traffic leaves past Tor.",
   "play": "none",
-  "unlock": "password only, no fingerprint",
+  "unlock": "password only, no fingerprint"
 }`;
 
 const adb = String.raw`# push the config into the launcher of Android user N
@@ -65,7 +85,7 @@ adb shell content call --user N \
 const mechanism = [
   {
     title: "adb, not root",
-    body: "Three shell commands per Android user. No root, no Magisk, no system app, no accessibility service, nothing left running on the device that could be talked into anything later.",
+    body: "A cable and Android's own developer commands, per Android user. No root, no Magisk, no system app, no accessibility service, nothing left running on the device that could be talked into anything later.",
   },
   {
     title: "A sandbox it cannot leave",
@@ -73,18 +93,18 @@ const mechanism = [
   },
   {
     title: "Read back, not reported",
-    body: "Provisioning does not trust an exit code. It writes, triggers a reload, reads the effective state and the diagnostics of that reload back off the device, and fails when they disagree with the file.",
+    body: "Provisioning does not trust an exit code. It writes, triggers a reload, reads the effective state and the diagnostics of that reload back off the device, and fails when they disagree with the file. The same goes for Anon's browser: it checks where a plain link actually lands.",
   },
   {
     title: "Signatures someone else confirmed",
-    body: "Every app is pinned to a signing certificate, and a pin is only worth as much as its witness. Of 22, 20 are confirmed by someone other than whoever served the download — the remaining two are named in the repository rather than averaged away.",
+    body: "Every app is pinned to its signing certificate, and a pin is only worth as much as its witness. Most are confirmed by a second distributor, not only by whoever served the download. The ones that are not, among them the launcher, which only andashi signs, are named in the repository rather than averaged away.",
   },
 ];
 
 const limits = [
-  ["It has only ever run against an emulator.", "The scripts are exercised against a GrapheneOS emulator image, which validates the chain but not the phone. What it cannot prove is written down rather than glossed over: sandboxed Play and the apps that depend on it, Play Integrity, the MAM broker and app protection policies, push notifications in daily use, fingerprint and two-factor unlock, eSIM, NFC, and arm64-only apps. A real device is the next thing this project needs."],
+  ["It has only ever run against an emulator.", "Every screenshot and video on this page comes from a GrapheneOS emulator image, which validates the chain but not the phone. What it cannot prove is written down rather than glossed over: sandboxed Play and the apps that depend on it, Play Integrity, the MAM broker and app protection policies, push notifications in daily use, fingerprint and two-factor unlock, eSIM, NFC, arm64-only apps, and how any of it feels in the hand. A real device is the next thing this project needs."],
   ["The managed work profile is a hypothesis, not a result.", "It is built for a work profile in which an employer's agent enforces policy, but whether Intune's app protection behaves inside a Shelter-managed profile is untested — it needs sandboxed Play, which the emulator target does not have. The Google Workspace alternative exists as a documented branch, never as a path anyone has run; even its package names are reasoned guesses."],
-  ["It is not anonymity.", "Anon is a zone with Orbot and mandatory lockdown, not a cloak. Everything outside that zone is an ordinary phone with an ordinary network trail."],
+  ["It is not anonymity.", "Anon is a zone with Orbot, mandatory lockdown and Tor Browser for its links, not a cloak. Everything outside that zone is an ordinary phone with an ordinary network trail."],
   ["It needs a supported Pixel and GrapheneOS.", "Plus a computer with adb and a bootloader you are willing to unlock. There is no build for anything else, and no plan to pretend otherwise."],
   ["It builds on a wiped phone, it does not wipe one.", "Zones are Android users: provisioning creates them and can remove them again, which destroys that zone's data and nothing else. The device-wide wipe belongs to the GrapheneOS install that comes first."],
   ["Android runs three profiles at once.", "Not six. The model plans around that limit: two zones are stopped, two run on demand, and a stopped profile has its keys evicted."],
@@ -95,21 +115,22 @@ const limits = [
 
 <Base
   title="andashi — a phone you come home to"
-  description="A GrapheneOS phone declared in code: six profiles that work like network zones, one file per zone, and a phone that says what it actually applied."
+  description="A GrapheneOS phone split into six zones, each with its own apps, network and colour, set up from files and checked by reading the phone back."
 >
   <header class="hero">
     <div class="wrap inner">
       <div class="copy">
         <h1>A phone you come home to</h1>
         <p class="lede">
-          andashi is a GrapheneOS phone declared in code. What the zones are,
-          which app lives in which of them, what each one may reach, down to the
-          home screen — all of it is files. You change a file, and the phone
-          answers with what it actually applied, not with the hope that it
-          worked.
+          andashi turns a Pixel running GrapheneOS into six phones in one. Each
+          part, a zone, has its own apps, its own way onto the internet and its
+          own colour, so the app for your 3D printer never sits next to your
+          messages and your passwords. All of it is written down in files and
+          set up from a computer, and the phone answers with what it actually
+          applied, not with the hope that it worked.
         </p>
         <div class="actions">
-          <a class="btn btn--primary" href="#zones">See the model</a>
+          <a class="btn btn--primary" href="#zones">See the six zones</a>
           <a class="btn" href="https://github.com/andashi/provisioning">The provisioning</a>
         </div>
         <p class="warn">
@@ -141,12 +162,38 @@ const limits = [
           the reason the rest works.
         </p>
         <p class="mut">
-          That is what a distribution is. The base everything else is cooked in,
-          and when it is any good, nobody notices it — you notice the phone, not
-          the six files underneath. The <em>an</em> is the Android part, and the
-          mark is the sun those files put on every home screen.
+          That is what a distribution is. It takes software other people make,
+          here GrapheneOS and about forty apps, and decides how it all fits
+          together: which app goes where, what is switched on, what is left out.
+          When it is any good, nobody notices it — you notice the phone, not the
+          files underneath. The <em>an</em> is the Android part, and the mark is
+          the sun those files put on every home screen.
         </p>
       </div>
+    </section>
+
+    <section id="words" class="wrap">
+      <span class="kicker">In plain words</span>
+      <h2>Three words, and what they mean here</h2>
+      <p class="lede">
+        You do not need to know any of this to use the phone. You need it to
+        judge whether the phone is for you.
+      </p>
+      <div class="grid three">
+        {words.map((w) => (
+          <div class="card">
+            <h3>{w.title}</h3>
+            <p class="mut">{w.body}</p>
+          </div>
+        ))}
+      </div>
+      <p class="mut after">
+        A default nobody chose is still a choice: an app that comes with the
+        system, a permission nobody took away, a search engine the launcher
+        puts under every query. andashi makes each of those choices on purpose,
+        writes it into a file, and keeps the reason next to it. The rest of
+        this page is those choices.
+      </p>
     </section>
 
     <section id="config" class="wrap">
@@ -171,15 +218,15 @@ const limits = [
       <div class="split">
         <div>
           <pre><code>{profilesJson}</code></pre>
-          <p class="cap">A zone in <code>profiles.json</code>. The lockdown flag is not a preference — for Anon it is the difference between Tor and a leak.</p>
+          <p class="cap">A zone in <code>profiles.json</code>, shortened. The lockdown flag is not a preference — for Anon it is the difference between Tor and a leak. The browser line is the other half: it decides which app a link opens in.</p>
           <pre><code>{launcherJson}</code></pre>
-          <p class="cap">Its home screen, generated from the same sources and pushed per Android user. Comments and trailing commas are fine.</p>
+          <p class="cap">An excerpt of Home's home screen, generated from the same sources and pushed per Android user: the glass, the wallpaper, the two favourites, where the search bar sits, and which chips a search may offer.</p>
           <pre><code>{adb}</code></pre>
           <p class="cap">How it reaches the phone. Per Android user, without root.</p>
         </div>
         <figure class="phone">
-          <div class="screen"><img src="/shots/home.webp" alt="The Home zone's home screen: wallpaper and a search bar at the bottom" width="720" height="1280" loading="lazy" /></div>
-          <figcaption class="cap">What that file produces, out of a run on the emulator: the wallpaper, and the search bar. No clock and no dock — the file does not ask for either, and the launcher does not render them.</figcaption>
+          <div class="screen"><img src="/shots/zone-home.webp" alt="The Home zone's home screen: wallpaper, Phone and Vanadium pinned, a search bar at the bottom" width="540" height="960" loading="lazy" /></div>
+          <figcaption class="cap">What that file produces: the wallpaper, Phone and Vanadium pinned above the search bar, and nothing else. No grid of icons to keep tidy; the rest is one search away.</figcaption>
         </figure>
       </div>
 
@@ -187,7 +234,9 @@ const limits = [
         Re-running is the normal case, not the emergency: every step checks
         before it writes, and pushing an unchanged file changes nothing. A zone
         can be changed long after it was created — its apps, permissions,
-        settings, VPN, theme and home screen are all re-applied in place.
+        settings, VPN, theme and home screen are all re-applied in place. You
+        may still move things around on the phone itself: the next run notices
+        and refuses to overwrite an arrangement it has not seen.
       </p>
     </section>
 
@@ -195,14 +244,21 @@ const limits = [
       <span class="kicker">The model</span>
       <h2>Six zones, one phone</h2>
       <p class="lede">
-        The phone is treated as a segmented network. The question when installing
-        an app is never “do I want this app?” but “which zone is this app allowed
-        to do damage in?”. Android allows exactly one VPN per profile, so the
-        assignment is enforced by the platform rather than by discipline.
+        Think of a house where the guests, the delivery people and the family
+        each get their own door. The question when installing an app is never
+        “do I want this app?” but “which zone is this app allowed to do damage
+        in?”. Android allows exactly one VPN per profile, so the assignment is
+        enforced by the phone itself rather than by discipline.
       </p>
       <div class="grid zones">
         {zones.map((zone) => <ZoneCard zone={zone} />)}
       </div>
+      <p class="mut after">
+        The network terms come from how careful people split a home network:
+        a trusted LAN for their own devices, a DMZ for what faces the internet,
+        a separate VLAN for gadgets that should not see the rest. andashi
+        applies the same split to one phone.
+      </p>
       <p class="mut after">
         Work is not a zone of its own: it is a managed profile inside Home, with
         its own VPN and lockdown, and its apps show badged in Home's launcher.
@@ -229,16 +285,18 @@ const limits = [
 
     <section id="screens">
       <div class="wrap">
-        <span class="kicker">Nothing to arrange</span>
-        <h2>Six zones, one page each</h2>
+        <span class="kicker">The home screen</span>
+        <h2>A picture, a search bar, and nothing to tidy</h2>
         <p class="lede">
-          Apps live in search, not on the desktop, so a home screen never fills
-          up and never needs tidying — and the wallpaper is how you know which
-          zone you are in. Home is the colourless one, because colour signals
-          that you are not home.
+          Each zone's home screen is its own wallpaper and a search bar where
+          your thumb is. The picture tells you which zone you are in before you
+          touch anything; so does the colour of the quick settings, the
+          icons and the keyboard. Home is the colourless one, because colour means you are
+          not home.
         </p>
       </div>
 
+      <div class="strip-wrap">
       <div class="strip" tabindex="0" role="region"
            aria-label="Home screens of the six zones, scrollable sideways">
         {shots.map(([id, label, note]) => (
@@ -251,29 +309,132 @@ const limits = [
           </figure>
         ))}
       </div>
+      </div>
 
       <div class="wrap">
-        <h3 class="sub">The same launcher, a different catalogue</h3>
-        <p class="mut narrow">
-          Which app exists in a zone is declared in <code>apps.json</code>, so
-          the drawer differs per zone. Home carries the identity and secrets
-          apps and has a Work tab — the managed profile inside it. Anon has
-          neither, and no Play services anywhere near it.
-        </p>
-        <div class="pair">
-          <figure class="shot">
-            <div class="screen"><img src="/shots/home-drawer.webp" alt="The Home zone's app drawer, with a Personal and a Work tab" width="720" height="1280" loading="lazy" /></div>
-            <figcaption><strong>Home</strong><span class="cap">Personal and Work, side by side.</span></figcaption>
-          </figure>
-          <figure class="shot">
-            <div class="screen"><img src="/shots/anon-drawer.webp" alt="The Anon zone's app drawer: Molly, Orbot, Tor Browser" width="720" height="1280" loading="lazy" /></div>
-            <figcaption><strong>Anon</strong><span class="cap">The whole zone: Molly, Orbot, Tor Browser, and what the system brings.</span></figcaption>
-          </figure>
+        <div class="story">
+          <div class="text">
+            <h3 class="sub">Search is the app drawer</h3>
+            <p class="mut">
+              Tap the bar and it glides to the top of the screen. The wallpaper
+              blurs behind a list you can read: your favourites, then every app
+              in the zone, with a Work tab in Home. Type three letters and the
+              best match sits right under the bar.
+            </p>
+            <p class="mut">
+              The bar starts at the bottom because that is where the thumb
+              reaches, and moves up because in search the keyboard owns the
+              bottom. That order was chosen from screen recordings of three
+              variants, not on paper.
+            </p>
+          </div>
+          <div class="pair">
+            <figure class="shot">
+              <div class="screen"><video src="/video/phone-search-app.mp4" poster="/video/phone-search-app.webp" width="720" height="1280" controls muted loop playsinline preload="none" aria-label="Screen recording: tapping the search bar, typing sig, Signal appears"></video></div>
+              <figcaption><strong>Recording</strong><span class="cap">Tap, the bar moves up, “sig” finds Signal.</span></figcaption>
+            </figure>
+            <figure class="shot">
+              <div class="screen"><img src="/shots/home-search.webp" alt="Search open in the Home zone: favourites, then all apps with a Personal and a Work tab" width="720" height="1280" loading="lazy" /></div>
+              <figcaption><strong>Home, search open</strong><span class="cap">Favourites, then every app; Personal and Work side by side.</span></figcaption>
+            </figure>
+          </div>
         </div>
+
+        <div class="story">
+          <div class="text">
+            <h3 class="sub">Chips that recognise, never ones that advertise</h3>
+            <p class="mut">
+              Type a phone number and search offers Call, Message and Add to
+              contact. An address or a time brings Email, Alarm, Timer,
+              Calendar or Website. Those are the only chips there are, and they
+              appear only when the query looks like one of those things.
+            </p>
+            <p class="mut">
+              Kvaesitso, the launcher andashi's home screen is forked from, puts
+              Web search, YouTube and Google under every query, in every zone. The distribution removes
+              them. The launcher has no internet permission in any zone, so what
+              you type into it stays on the phone. Contact search exists only in
+              Home, the one zone that holds contacts; the other zones do not
+              nag for a permission they should not have.
+            </p>
+          </div>
+          <div class="pair">
+            <figure class="shot">
+              <div class="screen"><video src="/video/phone-search-number.mp4" poster="/video/phone-search-number.webp" width="720" height="1280" controls muted loop playsinline preload="none" aria-label="Screen recording: typing a phone number, Call, Message and Add to contact appear"></video></div>
+              <figcaption><strong>Recording</strong><span class="cap">A typed number becomes Call, Message, Add to contact.</span></figcaption>
+            </figure>
+          </div>
+        </div>
+
+        <div class="story">
+          <div class="text">
+            <h3 class="sub">A default is a statement</h3>
+            <p class="mut">
+              Anon is the zone where everything goes through Tor, the network
+              that hides where you are. Until recently that was only half
+              true. The traffic went through Tor, but a link tapped in a
+              message opened in Vanadium, the phone's everyday browser —
+              because Vanadium comes with the system, every zone gets it, and
+              nobody had said otherwise. Tor hid the address; the browser gave
+              websites everything else.
+            </p>
+            <p class="mut">
+              Now Anon names its browser. Links there open in Tor Browser, the
+              setup reads back where a plain link actually lands, and it refuses
+              to name a browser the zone does not contain.
+              Its search drops Website, Message and Contact, and it has no
+              Play services and no contacts to find. Nothing here is new
+              software. It is a decision that had not been made, made on
+              purpose.
+            </p>
+          </div>
+          <div class="pair">
+            <figure class="shot">
+              <div class="screen"><video src="/video/anon-search-tor.mp4" poster="/video/anon-search-tor.webp" width="720" height="1280" controls muted loop playsinline preload="none" aria-label="Screen recording in the Anon zone: typing tor finds Tor Browser"></video></div>
+              <figcaption><strong>Anon, recording</strong><span class="cap">“tor” finds Tor Browser. No web chips underneath.</span></figcaption>
+            </figure>
+            <figure class="shot">
+              <div class="screen"><img src="/shots/anon-search.webp" alt="Search open in the Anon zone: Molly, Orbot, Tor Browser and the system apps, no Work tab" width="720" height="1280" loading="lazy" /></div>
+              <figcaption><strong>Anon, the whole zone</strong><span class="cap">Molly, Orbot, Tor Browser, and what the system brings. No Work tab.</span></figcaption>
+            </figure>
+          </div>
+        </div>
+
+        <div class="story">
+          <div class="text">
+            <h3 class="sub">The same phone, folded open</h3>
+            <p class="mut">
+              On a Pixel Fold the favourites move into a column on the right
+              edge, where the right thumb rests, on the outer screen and on the
+              inner one alike. Open the phone and the home screen follows; the
+              cut in the recording is Android switching displays, not an edit.
+            </p>
+            <p class="mut">
+              On the big screen search splits into two panes that never cross
+              the hinge: apps sit in the half the outer screen also shows,
+              shortcuts and results in the other.
+            </p>
+          </div>
+          <div class="pair">
+            <figure class="shot wide">
+              <div class="screen"><video src="/video/fold-unfold.mp4" poster="/video/fold-unfold.webp" width="720" height="820" controls muted loop playsinline preload="none" aria-label="Screen recording on a Pixel Fold: from the outer screen to the inner screen"></video></div>
+              <figcaption><strong>Fold, recording</strong><span class="cap">Outer screen to inner screen, one continuous recording.</span></figcaption>
+            </figure>
+            <figure class="shot wide">
+              <div class="screen"><img src="/shots/fold-inner-search.webp" alt="Search on the Fold's inner screen: apps in the right pane, the left pane free" width="1200" height="1244" loading="lazy" /></div>
+              <figcaption><strong>Fold, search open</strong><span class="cap">Two panes, split at the hinge.</span></figcaption>
+            </figure>
+          </div>
+        </div>
+
         <p class="cap narrow">
-          The six above are one set from one run, a few days old: they still
-          show a clock, which the current launcher no longer renders while the
-          home grid is rebuilt. The two drawers here are from today.
+          All of this was recorded on emulators, on a laptop. Without
+          recording, the launcher there draws a frame in 16 ms at the median
+          while search opens and you type; the recorder itself costs frames, so
+          the videos look a little less smooth than the launcher is. Those are
+          numbers for comparing launcher versions with each other, not a claim
+          about a real Fold. Recordings from real hardware come when the
+          hardware does.
         </p>
       </div>
     </section>
@@ -283,8 +444,9 @@ const limits = [
       <h2>Configuration without a backdoor</h2>
       <p class="lede">
         Configuring Android as code usually means root, a privileged system app,
-        or an accessibility service that can read the screen. All three open a
-        hole in exactly the place GrapheneOS closes. So none of them is used.
+        or an accessibility service that can read the screen. Each of them is a
+        master key, and all three open a hole in exactly the place GrapheneOS
+        closes. So none of them is used.
       </p>
       <div class="grid three">
         {mechanism.map((m) => (
@@ -313,10 +475,14 @@ const limits = [
     <section id="start" class="wrap">
       <span class="kicker">What you need</span>
       <h2>Nine and a half minutes, and a phone with GrapheneOS on it</h2>
+      <p class="lede">
+        This is not an installer yet. Today it asks for a computer and for being
+        at ease in a terminal. If that is not you, it is fine to watch for now.
+      </p>
       <div class="grid three">
         <div class="card"><h3>A device</h3><p class="mut">A supported Pixel with GrapheneOS already installed and set up. That install is the step that unlocks the bootloader and clears the device.</p></div>
         <div class="card"><h3>A computer</h3><p class="mut">Anything with <code>adb</code> and <code>jq</code>. No agent runs on the phone.</p></div>
-        <div class="card"><h3>Nine and a half minutes</h3><p class="mut">575 seconds for all six zones, measured today from a clean image. Most of it is installing apps; the rest is the launcher config, where a background profile's first wallpaper costs about half a minute. Running it again is the normal case, not the emergency.</p></div>
+        <div class="card"><h3>Nine and a half minutes</h3><p class="mut">575 seconds for all six zones, measured on 21 September from a clean emulator image. Most of it is installing apps; the rest is the launcher config, where a background profile's first wallpaper costs about half a minute. Running it again is the normal case, not the emergency.</p></div>
       </div>
       <div class="actions wide">
         <a class="btn btn--primary" href="https://github.com/andashi/provisioning">andashi/provisioning</a>
@@ -332,6 +498,16 @@ const limits = [
       <span class="kicker">Reasonable objections</span>
       <h2>Why not just a shell script?</h2>
       <dl class="faq">
+        <div>
+          <dt>Do I have to think about zones all day?</dt>
+          <dd class="mut">
+            No. Most of the day you are in Home, and it is a phone. You switch to
+            another zone the way Android switches users, from the quick settings,
+            and the wallpaper and colours tell you where you landed. Cloud keeps
+            running in the background, which is why the car key in it works
+            without switching there first.
+          </dd>
+        </div>
         <div>
           <dt>Why not LineageOS and a few shell commands?</dt>
           <dd class="mut">
@@ -441,13 +617,13 @@ const limits = [
 
   /* Waagerechter Streifen: sechs Telefone passen nie in eine Zeile, also
      scrollt er, statt die Bilder auf Briefmarken zu schrumpfen. */
-  #screens { position: relative; }
-  #screens::after {
+  .strip-wrap { position: relative; }
+  .strip-wrap::after {
     content: ""; position: absolute; top: 0; right: 0; width: 5rem; height: 100%;
     background: linear-gradient(90deg, transparent, var(--bg));
     pointer-events: none;
   }
-  @media (max-width: 40rem) { #screens::after { width: 2rem; } }
+  @media (max-width: 40rem) { .strip-wrap::after { width: 2rem; } }
   .strip {
     display: flex; gap: 1.25rem; overflow-x: auto; scroll-snap-type: x proximity;
     padding: 2.25rem var(--gutter) 0.5rem;
@@ -460,6 +636,18 @@ const limits = [
   .sub { margin-top: 3.25rem; }
   .narrow { max-width: 42rem; margin-top: 0.6rem; }
   .pair { display: flex; gap: 1.25rem; margin-top: 1.75rem; flex-wrap: wrap; }
+  .screen video { width: 100%; height: auto; display: block; background: #000; }
+
+  /* Text links, Aufnahme und Standbild rechts; auf schmalen Schirmen untereinander. */
+  .story { display: grid; gap: clamp(1.5rem, 4vw, 3rem); align-items: start;
+           grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+           padding-top: 1rem; }
+  .story + .story { border-top: 1px solid var(--line); margin-top: 2.5rem; padding-top: 0.5rem; }
+  .story .text p { margin: 0.75rem 0 0; max-width: 34rem; }
+  .story .pair { margin-top: 3.25rem; }
+  .story .shot { width: min(250px, 100%); }
+  .story .shot.wide { width: min(280px, 100%); }
+  #screens > .wrap > .cap.narrow { margin-top: 3rem; }
 
   .zones { grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr)); margin-top: 2.25rem; }
   .three { grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); margin-top: 2.25rem; }
@@ -486,6 +674,8 @@ const limits = [
     .hero .inner { grid-template-columns: 1fr; }
     .mark { order: -1; }
     .split { grid-template-columns: 1fr; }
+    .story { grid-template-columns: 1fr; }
+    .story .pair { margin-top: 0; }
     .phone { max-width: 20rem; }
   }
 </style>

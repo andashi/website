@@ -26,7 +26,9 @@ run `python3 ../brand/mark.py` and copy again — `bin/sync-brand.sh` does both.
 - **`--ink-dim` is measured, not chosen:** 5.59:1 on the page background and
   5.34:1 on cards. The old value was 3.55:1, below the 4.5:1 that small text
   needs.
-- First load is 141 KB including both fonts; everything else is lazy.
+- First load is 141 KB including both fonts; everything else is lazy. The
+  four recordings (3.2 MB together) load only when someone presses play; the
+  CSP allows `media-src 'self'` for them and nothing else new.
 
 ## Headers, and where this should be hosted
 
@@ -90,20 +92,16 @@ travel with the download.
 
 ## Still missing
 
-- **The other four zones.** `public/shots/` holds Home and Anon, home screen
-  and drawer, from one run on 2026-09-21 with launcher 0.3.0 and the template
-  catalogue, captured at 1080x1920 and served as WebP at 720 wide. Cloud,
-  Gadgets, Ops and Lab are missing on purpose: every fresh profile stops in the
-  GrapheneOS setup wizard on first switch, six screens to tap through per zone,
-  and Cloud in particular would show a zone without the Play apps that define
-  it, because the emulator target has no sandboxed Play. The strip is a flexbox
-  and takes two or six without a rewrite. Source images live in
-  `provisioning/.artifact/`, which is not checked in anywhere.
-
-  They come with the first run on real hardware, and not before: on a device
-  the wizard is walked through anyway, because that is where the PINs are set —
-  which is the only reason it stays manual at all. Four screenshots then,
-  instead of twenty-four wizard screens now.
+- **Real hardware.** Every still and recording in `public/shots/` and
+  `public/video/` is from one day's run, 2026-09-24, Andashi Home 0.7.0 on the
+  phone and Fold emulators (provisioned state, snapshot `provisioned-070`).
+  Stills are WebP at 540 or 720 wide (Fold at 1200); videos are the untouched
+  1080p H.264 recordings, `preload="none"`, with a WebP poster of a meaningful
+  frame. Videos show behaviour, never a composed slideshow. The frame times in
+  the caption are emulator numbers for comparing launcher versions, not device
+  performance; real-device recordings replace them when the hardware is here.
+  The sources live in `/tmp/andashi-share/website-assets-0.7.0/`, checked in
+  nowhere.
 - DNS for andashi.org — the workflow and `public/CNAME` are ready.
 - **A contact address.** The page says to watch the repositories, because I did
   not want to publish an address nobody chose. If there should be one, it goes

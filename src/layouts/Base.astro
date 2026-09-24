@@ -35,7 +35,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site).href;
     {import.meta.env.PROD && (
       <meta
         http-equiv="Content-Security-Policy"
-        content="default-src 'none'; img-src 'self'; style-src 'self'; font-src 'self'; base-uri 'none'; form-action 'none'"
+        content="default-src 'none'; img-src 'self'; media-src 'self'; style-src 'self'; font-src 'self'; base-uri 'none'; form-action 'none'"
       />
     )}
     <meta property="og:type" content="website" />

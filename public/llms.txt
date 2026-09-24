@@ -1,8 +1,9 @@
 # andashi
 
 > A GrapheneOS phone declared in code: six profiles that work like network
-> zones, a search-first launcher configured by one file per zone, applied over
-> adb and verified by reading the device back.
+> zones, each with its own apps, VPN, colour and wallpaper, a search-first
+> launcher configured by one file per zone, applied over adb and verified by
+> reading the device back.
 
 andashi is a GrapheneOS distribution, not an Android ROM of its own. The zones
 are Android users; what each one is, which apps live in it, what they may
@@ -11,9 +12,17 @@ adb. No root, no privileged app, nothing agentic running on the phone.
 
 ## The model
 
-- [Six zones](https://andashi.org/#zones): Home (trusted LAN, Tailscale, no Play services), Work (managed profile inside Home, RethinkDNS with lockdown), Cloud (DMZ), Gadgets (IoT VLAN, lockdown), Ops (management, stopped), Lab (guest, wiped often), Anon (Orbot, lockdown mandatory, password only)
+- [Six zones](https://andashi.org/#zones): Home (trusted LAN, Tailscale, no Play services), Work (managed profile inside Home, RethinkDNS with lockdown), Cloud (DMZ), Gadgets (IoT VLAN, lockdown), Ops (management, stopped), Lab (guest, deliberately empty), Anon (Orbot, lockdown mandatory, links open in Tor Browser, password only)
 - One VPN per Android profile is a platform limit, so the assignment is enforced by Android rather than by discipline
 - Android runs three profiles at once: two zones stay stopped, two run on demand, and a stopped profile has its keys evicted
+
+## The home screen (Andashi Home 0.7.0)
+
+- A sharp zone wallpaper and a search bar at the bottom; search replaces the app drawer and moves its bar to the top, over a blurred wallpaper
+- Chips under a query are recognisers only (call, message, email, contact, alarm, timer, calendar, website); no web, Google or YouTube search in any zone
+- Contact search only in Home; Anon offers no website, message or contact chip
+- On a Pixel Fold the favourites are a column on the right edge, and search on the inner screen uses two panes that never cross the hinge
+- All screenshots and recordings are from emulators
 
 ## Declared in
 
