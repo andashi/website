@@ -115,17 +115,14 @@ travel with the download.
   its facts (instance, GPU mode, launcher version, screenrecord command, what
   was cut or scaled; see provisioning `docs/guides/emulator.md`, "Recordings
   for the website"), and those facts go here next to the file.
-- DNS for andashi.org — the workflow and `public/CNAME` are ready.
 - **A contact address.** The page says to watch the repositories, because I did
   not want to publish an address nobody chose. If there should be one, it goes
   in the footer and in the "follow" line.
-- `andashi/provisioning` must be public before this goes live: the main call to
-  action links to it.
 
 ## Deploying
 
 GitHub Pages: `.github/workflows/pages.yml` builds with `withastro/action` and
-`public/CNAME` claims the domain. What is still needed:
+`public/CNAME` claims the domain. Set up once, and all three are done:
 
 1. the repository `andashi/website` on GitHub, `main` as default branch
 2. Pages set to "GitHub Actions" in the repository settings
