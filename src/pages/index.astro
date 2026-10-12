@@ -468,6 +468,36 @@ const limits = [
       </div>
     </section>
 
+    <section id="keys" class="wrap">
+      <span class="kicker">Trust, written down</span>
+      <h2>What signs the apps this project ships</h2>
+      <p class="lede">
+        Two apps are built here: the launcher and the updater that keeps every
+        other app current. Android lets an app be replaced only by a build
+        carrying the same signer, so these two fingerprints are the roots of
+        trust. The same values are pinned in provisioning's
+        <code>apks/certs/</code>, from where the laptop pushes them into every
+        zone, and the updater's is in that repository's README; this page is
+        the place meant for a person to compare against.
+      </p>
+      <dl class="keys">
+        <div class="row">
+          <dt><code>org.andashi.home</code> — the launcher</dt>
+          <dd><code>e42da3c2cf9e682d67b96f3655b2adf1bb22488a064b6ff833520b3c43f2a5ee</code></dd>
+        </div>
+        <div class="row">
+          <dt><code>org.andashi.updater</code> — the updater</dt>
+          <dd><code>0d0334f0a1237ed0b449d0d408e6be3ad113c9542fbaf9912dff31cf0362e1d3</code></dd>
+        </div>
+      </dl>
+      <p class="mut after">
+        SHA-256 of the signing certificate, as <code>apksigner verify --print-certs</code> prints it.
+        The updater's releases are built twice on independent runners and signed
+        only when both builds agree; the signing job refuses to publish under
+        any other key.
+      </p>
+    </section>
+
     <section id="limits" class="wrap">
       <span class="kicker">Honestly</span>
       <h2>What it does not promise</h2>
@@ -491,12 +521,13 @@ const limits = [
       </p>
       <div class="grid three">
         <div class="card"><h3>A device</h3><p class="mut">A supported Pixel with GrapheneOS already installed and set up. That install is the step that unlocks the bootloader and clears the device.</p></div>
-        <div class="card"><h3>A computer</h3><p class="mut">Anything with <code>adb</code> and <code>jq</code>. No agent runs on the phone.</p></div>
+        <div class="card"><h3>A computer</h3><p class="mut">Anything with <code>adb</code> and <code>jq</code>. No agent runs on the phone for the setup; keeping the apps current afterwards is the updater's job, one of the apps it installs.</p></div>
         <div class="card"><h3>About four minutes</h3><p class="mut">241 seconds for all six zones, set up and verified, measured on 24 September on the Fold emulator from a clean snapshot, with the apps coming from copies on the computer. On a real phone it will differ. Running it again is the normal case, not the emergency.</p></div>
       </div>
       <div class="actions wide">
         <a class="btn btn--primary" href="https://github.com/andashi/provisioning">andashi/provisioning</a>
         <a class="btn" href="https://github.com/andashi/home">andashi/home — the launcher</a>
+        <a class="btn" href="https://github.com/andashi/updater">andashi/updater — the updater</a>
       </div>
       <p class="mut after">
         No newsletter, no Discord. Watching the repositories is the way to
@@ -664,6 +695,11 @@ const limits = [
   .card h3 { margin-bottom: 0.5rem; }
   .after { margin-top: 1.75rem; font-size: 0.9rem; max-width: 46rem; }
 
+  .keys { margin: 2rem 0 0; display: grid; gap: 1rem; }
+  .keys .row { display: grid; gap: 0.35rem; }
+  .keys dt { font-weight: 600; }
+  .keys dd { margin: 0; }
+  .keys dd code { display: block; overflow-wrap: anywhere; font-size: 0.85rem; }
   .limits { list-style: none; margin: 2.25rem 0 0; padding: 0; display: grid; gap: 0.9rem;
             max-width: 52rem; }
   .limits li { padding-left: 1.1rem; border-left: 2px solid var(--line); }
