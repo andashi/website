@@ -475,9 +475,10 @@ const limits = [
         Two apps are built here: the launcher and the updater that keeps every
         other app current. Android lets an app be replaced only by a build
         carrying the same signer, so these two fingerprints are the roots of
-        trust. The same values live in each repository's README and in
-        provisioning's <code>apks/certs/</code>; three places that would all
-        have to lie together.
+        trust. The same values are pinned in provisioning's
+        <code>apks/certs/</code>, from where the laptop pushes them into every
+        zone, and the updater's is in that repository's README; this page is
+        the place meant for a person to compare against.
       </p>
       <dl class="keys">
         <div class="row">
